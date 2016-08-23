@@ -38,7 +38,7 @@ function main {
     
   
     (($global:puppet_runs++))
-   # ((puppet_tries--))
+    (($global:puppet_tries--))
 
     if ($puppet_runs -eq $FAILPOINT) {write "Too many Puppet run failures, bailing script.  Could just be an exec resource, or... ?"
       exit 1 }
