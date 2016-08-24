@@ -27,32 +27,38 @@ function main {
   while ($puppetrun_status -ne "unchanged" ) {
   
     $Puppet_Exists = Test-Path $BINPUPPET
-    if ($Puppet_Exists -eq $false) { write "Puppet doesn't appear to have installed correctly.  Exiting script."
-      exit 1 }
+    if ($Puppet_Exists -eq $false) { 
+      write "Puppet doesn't appear to have installed correctly.  Exiting script."
+      exit 1 
+    }
   
 
     puppet agent -t > $null
     $puppetrun_exitcode = $LastExitCode 
 
-    if ( $puppetrun_exitcode -eq 1 ) {write "Puppet run failed or run may be in progress. Trying ${puppet_tries} more time(s)."}
+    if ( $puppetrun_exitcode -eq 1 ) {
+      write "Puppet run failed or run may be in progress. Trying ${$puppet_tries} more time(s)."
+    }
     
   
-    (($global:puppet_runs++))
-    (($global:puppet_tries--))
+    (($puppet_runs++))
+    (($puppet_tries--))
 
-    if ($puppet_runs -eq $FAILPOINT) {write "Too many Puppet run failures, bailing script.  Could just be an exec resource, or... ?"
-      exit 1 }
+    if ($puppet_runs -eq $FAILPOINT) {
+      write "Too many Puppet run failures, bailing script.  Could just be an exec resource, or... ?"
+      exit 1 
+    }
     
 
     # Get last run status again.  If we're successful, script is done, otherwise, sleep it off.
     $puppetrun_status = get_pupstatus 
-    if ( "$puppetrun_status" -ne "unchanged" ) {
-      sleep $SLEEPTIME
-    else
-      write-host "Puppet run successful."
-      exit 0 }
-    
 
+    if ( "$puppetrun_status" -eq "unchanged" ) {
+      write  "Puppet run successful." 
+      exit 0
+    } else {
+      $SLEEPTIME
+    }
   }
 
 }
